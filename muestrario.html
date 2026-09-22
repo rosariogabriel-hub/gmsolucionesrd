@@ -1,0 +1,828 @@
+<!doctype html>
+<html lang="es-DO">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Muestrario de fondos</title>
+  <meta name="robots" content="noindex">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #06110C; --ink: #F2F5F3; --ink-2: #B7C9BF; --brand: #1F8A5B; --brand-btn: #1B7D52; --mint: #5EE3A6;
+      --display: "Newsreader", Georgia, serif; --body: "Manrope", system-ui, sans-serif;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--body); -webkit-font-smoothing: antialiased; }
+    h1, h2, p { margin: 0; }
+
+    .picker {
+      position: fixed; top: 14px; left: 50%; transform: translateX(-50%); z-index: 20;
+      display: flex; gap: 6px; padding: 6px; border-radius: 999px;
+      background: rgba(6,17,12,0.55); border: 1px solid rgba(242,245,243,0.12);
+      backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+    }
+    .picker a { color: var(--ink-2); text-decoration: none; font-size: 13px; font-weight: 700; padding: 8px 14px; border-radius: 999px; white-space: nowrap; }
+    .picker a:hover { color: var(--ink); background: rgba(242,245,243,0.06); }
+
+    .opt { position: relative; min-height: 100vh; min-height: 100svh; overflow: clip; isolation: isolate; }
+    .opt__bg { position: absolute; inset: 0; z-index: 0; }
+    .opt__label {
+      position: absolute; left: clamp(20px, 4vw, 40px); top: 20px; z-index: 3;
+      font-size: 13px; font-weight: 700; color: var(--mint);
+      padding: 7px 12px; border-radius: 999px; border: 1px solid rgba(94,227,166,0.35); background: rgba(6,17,12,0.35);
+    }
+    .opt__note {
+      position: absolute; left: clamp(20px, 4vw, 40px); bottom: 22px; z-index: 3;
+      font-size: 14px; color: var(--ink-2); max-width: 46ch;
+    }
+
+    .hero {
+      position: relative; z-index: 2;
+      min-height: 100vh; min-height: 100svh;
+      max-width: 1120px; margin: 0 auto; padding: 0 clamp(20px, 4vw, 40px);
+      display: flex; flex-direction: column; justify-content: center;
+    }
+    .hero__title {
+      font-family: var(--display); font-weight: 500;
+      font-size: clamp(46px, 7.2vw, 96px); line-height: 0.98; letter-spacing: -0.02em;
+      font-variation-settings: "opsz" 72; max-width: 12ch; text-wrap: balance;
+      text-shadow: 0 2px 30px rgba(6,17,12,0.5);
+    }
+    .rot {
+      margin-top: 22px; height: 1.5em; position: relative; overflow: hidden;
+      font-family: var(--display); font-style: italic; font-weight: 400;
+      font-size: clamp(22px, 2.8vw, 34px); color: var(--mint); font-variation-settings: "opsz" 40;
+    }
+    .rot span {
+      position: absolute; left: 0; top: 0; white-space: nowrap;
+      opacity: 0; transform: translateY(110%);
+      transition: opacity 520ms cubic-bezier(0.22,1,0.36,1), transform 640ms cubic-bezier(0.22,1,0.36,1);
+    }
+    .rot span.is-on { opacity: 1; transform: none; }
+    .rot span.is-out { opacity: 0; transform: translateY(-110%); }
+    .hero__lead { margin-top: 26px; font-size: clamp(17px, 1.7vw, 20px); color: var(--ink-2); max-width: 54ch; }
+    .hero__actions { margin-top: 32px; display: flex; gap: 12px; flex-wrap: wrap; }
+    .btn { display: inline-flex; align-items: center; gap: 10px; padding: 15px 24px; border-radius: 999px; font-weight: 700; font-size: 15.5px; text-decoration: none; color: #fff; background: var(--brand-btn); }
+    .btn--ghost { background: rgba(6,17,12,0.35); border: 1px solid rgba(242,245,243,0.22); color: var(--ink); }
+    .btn svg { width: 20px; height: 20px; fill: currentColor; }
+
+    /* 1. Aurora fluida (WebGL) */
+    .opt--aurora canvas { width: 100%; height: 100%; display: block; }
+
+    /* 2. Malla de degradado (CSS) */
+    .opt--mesh .opt__bg { background: linear-gradient(180deg, #0B2419 0%, #071710 55%, #06110C 100%); }
+    .blob { position: absolute; border-radius: 50%; width: 70vmax; height: 70vmax; will-change: transform; }
+    .blob--1 { left: -20vmax; top: -30vmax; background: radial-gradient(closest-side, rgba(31,138,91,0.55), rgba(31,138,91,0.12) 55%, transparent 72%); animation: drift1 26s ease-in-out infinite alternate; }
+    .blob--2 { right: -25vmax; top: -10vmax; background: radial-gradient(closest-side, rgba(94,227,166,0.28), rgba(94,227,166,0.06) 55%, transparent 72%); animation: drift2 32s ease-in-out infinite alternate; }
+    .blob--3 { left: 10vmax; bottom: -40vmax; background: radial-gradient(closest-side, rgba(14,95,74,0.75), rgba(14,95,74,0.18) 55%, transparent 72%); animation: drift3 38s ease-in-out infinite alternate; }
+    .blob--4 { right: 5vmax; bottom: -30vmax; background: radial-gradient(closest-side, rgba(47,179,122,0.35), rgba(47,179,122,0.08) 55%, transparent 72%); animation: drift1 30s ease-in-out infinite alternate-reverse; }
+    @keyframes drift1 { from { transform: translate(0,0) scale(1); } to { transform: translate(14vmax, 10vmax) scale(1.15); } }
+    @keyframes drift2 { from { transform: translate(0,0) scale(1); } to { transform: translate(-12vmax, 16vmax) scale(0.9); } }
+    @keyframes drift3 { from { transform: translate(0,0) scale(1); } to { transform: translate(18vmax, -12vmax) scale(1.1); } }
+
+    /* 3. Luz que sigue al cursor */
+    .opt--spot .opt__bg { background: linear-gradient(160deg, #0D2A1F 0%, #07170F 50%, #0A1F17 100%); --mx: 50%; --my: 40%; }
+    .spot__dots {
+      position: absolute; inset: 0;
+      background-image: radial-gradient(rgba(94,227,166,0.55) 1px, transparent 1.4px); background-size: 28px 28px;
+      -webkit-mask-image: radial-gradient(circle 420px at var(--mx) var(--my), #000 0%, rgba(0,0,0,0.35) 45%, transparent 75%);
+              mask-image: radial-gradient(circle 420px at var(--mx) var(--my), #000 0%, rgba(0,0,0,0.35) 45%, transparent 75%);
+    }
+    .spot__light {
+      position: absolute; inset: 0;
+      background: radial-gradient(circle 560px at var(--mx) var(--my), rgba(31,138,91,0.55), rgba(31,138,91,0.14) 40%, transparent 70%);
+    }
+    .spot__base { position: absolute; inset: 0; background: radial-gradient(ellipse 80% 60% at 70% 20%, rgba(31,138,91,0.28), transparent 65%); }
+
+    /* 4. Grano de película + haz de luz */
+    .opt--film .opt__bg { background: linear-gradient(180deg, #14402E 0%, #0B2419 42%, #06110C 100%); }
+    .film__leak {
+      position: absolute; top: -20%; bottom: -20%; width: 42vw; left: -50vw;
+      background: linear-gradient(90deg, transparent, rgba(94,227,166,0.18) 45%, rgba(94,227,166,0.28) 50%, rgba(94,227,166,0.18) 55%, transparent);
+      transform: skewX(-18deg);
+      animation: leak 11s cubic-bezier(0.4,0,0.2,1) infinite;
+      mix-blend-mode: screen;
+    }
+    @keyframes leak { 0% { left: -50vw; opacity: 0; } 10% { opacity: 1; } 60% { opacity: 1; } 100% { left: 120vw; opacity: 0; } }
+    .film__grain { position: absolute; inset: -10%; opacity: 0.09; mix-blend-mode: screen; pointer-events: none; }
+    .film__vignette { position: absolute; inset: 0; background: radial-gradient(ellipse 90% 80% at 50% 45%, transparent 50%, rgba(6,17,12,0.7) 100%); }
+
+    /* 5–7. Lienzos */
+    .opt--canvas canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+    .opt--lines .opt__bg { background: linear-gradient(180deg, #0A1F17 0%, #06110C 100%); }
+    .opt--dots .opt__bg { background: radial-gradient(ellipse 90% 70% at 50% 40%, #0B2419 0%, #06110C 70%); }
+    .opt--globe .opt__bg { background: linear-gradient(160deg, #07170F 0%, #06110C 60%, #0A1F17 100%); }
+
+    /* 8. Paneles flotantes */
+    .opt--panels .opt__bg { background: linear-gradient(180deg, #0A1F17 0%, #06110C 100%); }
+    .panels { position: absolute; inset: 0; pointer-events: none; }
+    .panel {
+      position: absolute; border-radius: 18px;
+      background: linear-gradient(160deg, rgba(31,138,91,0.16), rgba(31,138,91,0.04));
+      border: 1px solid rgba(94,227,166,0.22);
+      box-shadow: 0 30px 60px -30px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,255,255,0.06);
+      backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+      padding: 18px; will-change: transform;
+      --x: 0px; --y: 0px; --f: 0px;
+      transform: translate3d(var(--x), calc(var(--y) + var(--f)), 0);
+    }
+    .panel::before { content: ""; position: absolute; inset: -1px; border-radius: inherit; padding: 1px; background: linear-gradient(140deg, rgba(94,227,166,0.55), transparent 40%, transparent 60%, rgba(94,227,166,0.25)); -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude; pointer-events: none; }
+    .panel--chat { width: 250px; right: 12%; top: 16%; }
+    .panel--bars { width: 220px; right: 32%; top: 44%; }
+    .panel--flow { width: 240px; right: 6%; top: 58%; }
+    .panel--doc { width: 200px; right: 38%; top: 12%; }
+    .p-bubble { height: 12px; border-radius: 7px; background: rgba(242,245,243,0.14); margin-bottom: 8px; }
+    .p-bubble--me { background: var(--brand); width: 60%; margin-left: auto; }
+    .p-bubble--w60 { width: 62%; } .p-bubble--w80 { width: 84%; } .p-bubble--w40 { width: 44%; }
+    .p-bars { display: flex; align-items: flex-end; gap: 7px; height: 70px; }
+    .p-bars i { flex: 1; background: rgba(242,245,243,0.14); border-radius: 3px 3px 1px 1px; height: var(--h); }
+    .p-bars i.hi { background: var(--mint); }
+    .p-line { height: 8px; border-radius: 4px; background: rgba(242,245,243,0.12); margin-top: 10px; width: 55%; }
+    .p-flow { display: flex; align-items: center; gap: 8px; }
+    .p-flow i { width: 14px; height: 14px; border-radius: 50%; background: var(--brand); flex: none; }
+    .p-flow i:last-child { background: var(--mint); }
+    .p-flow b { flex: 1; height: 2px; background: rgba(94,227,166,0.4); }
+    .p-doc { display: flex; gap: 10px; align-items: center; }
+    .p-doc i { width: 26px; height: 32px; border-radius: 4px; background: #e53935; flex: none; }
+    .p-doc div { flex: 1; } .p-doc div b { display: block; height: 8px; border-radius: 4px; background: rgba(242,245,243,0.16); margin-bottom: 6px; } .p-doc div b:last-child { width: 50%; margin-bottom: 0; }
+    @media (max-width: 900px) { .panels { opacity: 0.45; } .panel--doc { display: none; } .panel--bars { right: 40%; } }
+
+    /* 9 y 11. El titular lo dibuja el lienzo; el h1 real queda invisible pero ocupa su espacio */
+    .hero__title--ghost { opacity: 0; }
+    .opt--particles .opt__bg { background: radial-gradient(ellipse 80% 70% at 30% 40%, #0B2419 0%, #06110C 70%); }
+    .opt--liquid .opt__bg { background: linear-gradient(180deg, #071710 0%, #06110C 100%); }
+    .opt--liquid .opt__bg::after { content: ""; position: absolute; inset: 0; background-image: radial-gradient(rgba(94,227,166,0.14) 1px, transparent 1.3px); background-size: 30px 30px; }
+
+    /* 10. Marca monumental */
+    .opt--mono .opt__bg { background: linear-gradient(160deg, #0A1F17 0%, #06110C 55%, #0B2419 100%); perspective: 1200px; }
+    .mono {
+      position: absolute; right: -4vw; top: 50%; transform-style: preserve-3d;
+      font-family: var(--body); font-weight: 800; font-size: clamp(260px, 44vw, 620px); line-height: 0.8; letter-spacing: -0.08em;
+      color: transparent; -webkit-text-stroke: 2px rgba(94,227,166,0.55);
+      animation: mono-turn 16s ease-in-out infinite alternate;
+      user-select: none; pointer-events: none;
+    }
+    .mono::before, .mono::after {
+      content: "GM"; position: absolute; inset: 0; -webkit-text-stroke: 1px rgba(94,227,166,0.18); color: transparent;
+    }
+    .mono::before { transform: translateZ(-60px); }
+    .mono::after { transform: translateZ(-120px); -webkit-text-stroke-color: rgba(94,227,166,0.1); }
+    .mono__sweep {
+      position: absolute; inset: 0; color: transparent;
+      background: linear-gradient(110deg, transparent 42%, rgba(94,227,166,0.55) 50%, transparent 58%);
+      background-size: 250% 100%;
+      -webkit-background-clip: text; background-clip: text;
+      animation: mono-sweep 6s cubic-bezier(0.4,0,0.2,1) infinite;
+    }
+    @keyframes mono-turn { from { transform: translateY(-50%) rotateY(-28deg) rotateX(6deg); } to { transform: translateY(-46%) rotateY(18deg) rotateX(-4deg); } }
+    @keyframes mono-sweep { 0% { background-position: 120% 0; } 100% { background-position: -130% 0; } }
+    @media (max-width: 900px) { .mono { right: -20vw; top: 66%; font-size: 70vw; opacity: 0.35; } }
+
+    @media (max-width: 900px) {
+      .picker { top: auto; bottom: 14px; left: 12px; right: 12px; transform: none; overflow-x: auto; justify-content: flex-start; }
+      .opt__note { bottom: 76px; }
+    }
+    @media (max-width: 640px) {
+      .hero__actions .btn { width: 100%; justify-content: center; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .blob, .film__leak { animation: none; }
+      .rot span { transition: none; }
+    }
+  </style>
+</head>
+<body>
+
+<nav class="picker" aria-label="Opciones">
+  <a href="#o1">1 · Aurora</a>
+  <a href="#o2">2 · Malla</a>
+  <a href="#o3">3 · Luz</a>
+  <a href="#o4">4 · Película</a>
+  <a href="#o5">5 · Líneas</a>
+  <a href="#o6">6 · Constelación</a>
+  <a href="#o7">7 · Globo</a>
+  <a href="#o8">8 · Paneles</a>
+  <a href="#o9">9 · Partículas</a>
+  <a href="#o10">10 · Monumental</a>
+  <a href="#o11">11 · Líquido</a>
+</nav>
+
+<!-- 1 -->
+<section class="opt opt--aurora" id="o1">
+  <div class="opt__bg"><canvas id="aurora"></canvas></div>
+  <span class="opt__label">Opción 1 · Aurora fluida (WebGL)</span>
+  <div class="hero">
+    <h1 class="hero__title">GM Soluciones Digitales</h1>
+    <div class="rot" data-rot>
+      <span>Soluciones digitales a la medida de tu empresa</span>
+      <span>Atención y ventas automatizadas por WhatsApp</span>
+      <span>Inteligencia de datos para decidir mejor</span>
+      <span>Automatización de procesos empresariales</span>
+    </div>
+    <p class="hero__lead">Diseñamos e implementamos soluciones tecnológicas que se adaptan a cómo opera tu empresa: automatización, datos y atención al cliente, con acompañamiento de principio a fin.</p>
+    <div class="hero__actions">
+      <a class="btn" href="#"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5.1-1.3A10 10 0 1 0 12 2Zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2Zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.2-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5c-.2 0-.5.1-.7.3-.2.3-.9.9-.9 2.2s.9 2.5 1.1 2.7c.1.2 1.9 2.9 4.6 4 1.7.7 2.3.8 3.2.7.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.2-1.2-.1-.2-.3-.2-.6-.3Z"/></svg>Escríbenos por WhatsApp</a>
+      <a class="btn btn--ghost" href="#">Ver soluciones</a>
+    </div>
+  </div>
+  <p class="opt__note">Verde fluido generado por código, como una aurora. Se mueve solo y reacciona suavemente al cursor. Es la técnica de Scheme Engine, sin video.</p>
+</section>
+
+<!-- 2 -->
+<section class="opt opt--mesh" id="o2">
+  <div class="opt__bg">
+    <div class="blob blob--1"></div><div class="blob blob--2"></div><div class="blob blob--3"></div><div class="blob blob--4"></div>
+  </div>
+  <span class="opt__label">Opción 2 · Malla de degradado</span>
+  <div class="hero">
+    <h1 class="hero__title">GM Soluciones Digitales</h1>
+    <div class="rot" data-rot>
+      <span>Soluciones digitales a la medida de tu empresa</span>
+      <span>Atención y ventas automatizadas por WhatsApp</span>
+      <span>Inteligencia de datos para decidir mejor</span>
+      <span>Automatización de procesos empresariales</span>
+    </div>
+    <p class="hero__lead">Diseñamos e implementamos soluciones tecnológicas que se adaptan a cómo opera tu empresa: automatización, datos y atención al cliente, con acompañamiento de principio a fin.</p>
+    <div class="hero__actions">
+      <a class="btn" href="#"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5.1-1.3A10 10 0 1 0 12 2Zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2Zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.2-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5c-.2 0-.5.1-.7.3-.2.3-.9.9-.9 2.2s.9 2.5 1.1 2.7c.1.2 1.9 2.9 4.6 4 1.7.7 2.3.8 3.2.7.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.2-1.2-.1-.2-.3-.2-.6-.3Z"/></svg>Escríbenos por WhatsApp</a>
+      <a class="btn btn--ghost" href="#">Ver soluciones</a>
+    </div>
+  </div>
+  <p class="opt__note">Cuatro manchas grandes de verde que derivan lentamente. Más cobertura de color, cero negro plano. Muy liviana.</p>
+</section>
+
+<!-- 3 -->
+<section class="opt opt--spot" id="o3">
+  <div class="opt__bg" id="spotBg">
+    <div class="spot__base"></div>
+    <div class="spot__light"></div>
+    <div class="spot__dots"></div>
+  </div>
+  <span class="opt__label">Opción 3 · Luz que sigue al cursor</span>
+  <div class="hero">
+    <h1 class="hero__title">GM Soluciones Digitales</h1>
+    <div class="rot" data-rot>
+      <span>Soluciones digitales a la medida de tu empresa</span>
+      <span>Atención y ventas automatizadas por WhatsApp</span>
+      <span>Inteligencia de datos para decidir mejor</span>
+      <span>Automatización de procesos empresariales</span>
+    </div>
+    <p class="hero__lead">Diseñamos e implementamos soluciones tecnológicas que se adaptan a cómo opera tu empresa: automatización, datos y atención al cliente, con acompañamiento de principio a fin.</p>
+    <div class="hero__actions">
+      <a class="btn" href="#"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5.1-1.3A10 10 0 1 0 12 2Zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2Zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.2-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5c-.2 0-.5.1-.7.3-.2.3-.9.9-.9 2.2s.9 2.5 1.1 2.7c.1.2 1.9 2.9 4.6 4 1.7.7 2.3.8 3.2.7.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.2-1.2-.1-.2-.3-.2-.6-.3Z"/></svg>Escríbenos por WhatsApp</a>
+      <a class="btn btn--ghost" href="#">Ver soluciones</a>
+    </div>
+  </div>
+  <p class="opt__note">Verde profundo de base y una luz que acompaña al cursor; la retícula de puntos solo se enciende cerca de la luz. En el celular la luz recorre la pantalla sola.</p>
+</section>
+
+<!-- 4 -->
+<section class="opt opt--film" id="o4">
+  <div class="opt__bg">
+    <div class="film__leak"></div>
+    <svg class="film__grain" aria-hidden="true">
+      <filter id="grain"><feTurbulence id="turb" type="fractalNoise" baseFrequency="0.85" numOctaves="2" seed="1"/><feColorMatrix values="0 0 0 0 0.6  0 0 0 0 1  0 0 0 0 0.8  0 0 0 0.9 0"/></filter>
+      <rect width="100%" height="100%" filter="url(#grain)"/>
+    </svg>
+    <div class="film__vignette"></div>
+  </div>
+  <span class="opt__label">Opción 4 · Grano de película + haz de luz</span>
+  <div class="hero">
+    <h1 class="hero__title">GM Soluciones Digitales</h1>
+    <div class="rot" data-rot>
+      <span>Soluciones digitales a la medida de tu empresa</span>
+      <span>Atención y ventas automatizadas por WhatsApp</span>
+      <span>Inteligencia de datos para decidir mejor</span>
+      <span>Automatización de procesos empresariales</span>
+    </div>
+    <p class="hero__lead">Diseñamos e implementamos soluciones tecnológicas que se adaptan a cómo opera tu empresa: automatización, datos y atención al cliente, con acompañamiento de principio a fin.</p>
+    <div class="hero__actions">
+      <a class="btn" href="#"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5.1-1.3A10 10 0 1 0 12 2Zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2Zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.2-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5c-.2 0-.5.1-.7.3-.2.3-.9.9-.9 2.2s.9 2.5 1.1 2.7c.1.2 1.9 2.9 4.6 4 1.7.7 2.3.8 3.2.7.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.2-1.2-.1-.2-.3-.2-.6-.3Z"/></svg>Escríbenos por WhatsApp</a>
+      <a class="btn btn--ghost" href="#">Ver soluciones</a>
+    </div>
+  </div>
+  <p class="opt__note">Verde más presente de arriba abajo, grano fino como de cine y un haz de luz que cruza cada 11 segundos. La más cinematográfica.</p>
+</section>
+
+<!-- 5 -->
+<section class="opt opt--canvas opt--lines" id="o5">
+  <div class="opt__bg"><canvas data-canvas="lines"></canvas></div>
+  <span class="opt__label">Opción 5 · Líneas de flujo</span>
+  <div class="hero">
+    <h1 class="hero__title">GM Soluciones Digitales</h1>
+    <div class="rot" data-rot>
+      <span>Soluciones digitales a la medida de tu empresa</span>
+      <span>Atención y ventas automatizadas por WhatsApp</span>
+      <span>Inteligencia de datos para decidir mejor</span>
+      <span>Automatización de procesos empresariales</span>
+    </div>
+    <p class="hero__lead">Diseñamos e implementamos soluciones tecnológicas que se adaptan a cómo opera tu empresa: automatización, datos y atención al cliente, con acompañamiento de principio a fin.</p>
+    <div class="hero__actions">
+      <a class="btn" href="#"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5.1-1.3A10 10 0 1 0 12 2Zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2Zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.2-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5c-.2 0-.5.1-.7.3-.2.3-.9.9-.9 2.2s.9 2.5 1.1 2.7c.1.2 1.9 2.9 4.6 4 1.7.7 2.3.8 3.2.7.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.2-1.2-.1-.2-.3-.2-.6-.3Z"/></svg>Escríbenos por WhatsApp</a>
+      <a class="btn btn--ghost" href="#">Ver soluciones</a>
+    </div>
+  </div>
+  <p class="opt__note">Un campo de líneas que ondulan como agua y se apartan del cursor. Técnica, limpia, sin manchas de color.</p>
+</section>
+
+<!-- 6 -->
+<section class="opt opt--canvas opt--dots" id="o6">
+  <div class="opt__bg"><canvas data-canvas="dots"></canvas></div>
+  <span class="opt__label">Opción 6 · Constelación</span>
+  <div class="hero">
+    <h1 class="hero__title">GM Soluciones Digitales</h1>
+    <div class="rot" data-rot>
+      <span>Soluciones digitales a la medida de tu empresa</span>
+      <span>Atención y ventas automatizadas por WhatsApp</span>
+      <span>Inteligencia de datos para decidir mejor</span>
+      <span>Automatización de procesos empresariales</span>
+    </div>
+    <p class="hero__lead">Diseñamos e implementamos soluciones tecnológicas que se adaptan a cómo opera tu empresa: automatización, datos y atención al cliente, con acompañamiento de principio a fin.</p>
+    <div class="hero__actions">
+      <a class="btn" href="#"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5.1-1.3A10 10 0 1 0 12 2Zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2Zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.2-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5c-.2 0-.5.1-.7.3-.2.3-.9.9-.9 2.2s.9 2.5 1.1 2.7c.1.2 1.9 2.9 4.6 4 1.7.7 2.3.8 3.2.7.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.2-1.2-.1-.2-.3-.2-.6-.3Z"/></svg>Escríbenos por WhatsApp</a>
+      <a class="btn btn--ghost" href="#">Ver soluciones</a>
+    </div>
+  </div>
+  <p class="opt__note">Puntos que derivan y se conectan cuando se acercan; el cursor los atrae. Habla de sistemas que se integran.</p>
+</section>
+
+<!-- 7 -->
+<section class="opt opt--canvas opt--globe" id="o7">
+  <div class="opt__bg"><canvas data-canvas="globe"></canvas></div>
+  <span class="opt__label">Opción 7 · Globo de puntos</span>
+  <div class="hero">
+    <h1 class="hero__title">GM Soluciones Digitales</h1>
+    <div class="rot" data-rot>
+      <span>Soluciones digitales a la medida de tu empresa</span>
+      <span>Atención y ventas automatizadas por WhatsApp</span>
+      <span>Inteligencia de datos para decidir mejor</span>
+      <span>Automatización de procesos empresariales</span>
+    </div>
+    <p class="hero__lead">Diseñamos e implementamos soluciones tecnológicas que se adaptan a cómo opera tu empresa: automatización, datos y atención al cliente, con acompañamiento de principio a fin.</p>
+    <div class="hero__actions">
+      <a class="btn" href="#"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5.1-1.3A10 10 0 1 0 12 2Zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2Zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.2-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5c-.2 0-.5.1-.7.3-.2.3-.9.9-.9 2.2s.9 2.5 1.1 2.7c.1.2 1.9 2.9 4.6 4 1.7.7 2.3.8 3.2.7.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.2-1.2-.1-.2-.3-.2-.6-.3Z"/></svg>Escríbenos por WhatsApp</a>
+      <a class="btn btn--ghost" href="#">Ver soluciones</a>
+    </div>
+  </div>
+  <p class="opt__note">Una esfera de puntos girando con arcos de conexión, como una red viva. Es un objeto, no un fondo: da profundidad.</p>
+</section>
+
+<!-- 8 -->
+<section class="opt opt--panels" id="o8">
+  <div class="opt__bg">
+    <div class="panels" id="panels">
+      <div class="panel panel--doc" data-depth="0.6"><div class="p-doc"><i></i><div><b></b><b></b></div></div></div>
+      <div class="panel panel--chat" data-depth="1"><div class="p-bubble p-bubble--w80"></div><div class="p-bubble p-bubble--me"></div><div class="p-bubble p-bubble--w60"></div><div class="p-bubble p-bubble--me p-bubble--w40"></div></div>
+      <div class="panel panel--bars" data-depth="1.6"><div class="p-bars"><i style="--h:40%"></i><i style="--h:65%"></i><i style="--h:50%"></i><i style="--h:80%"></i><i class="hi" style="--h:100%"></i></div><div class="p-line"></div></div>
+      <div class="panel panel--flow" data-depth="1.2"><div class="p-flow"><i></i><b></b><i></i><b></b><i></i></div><div class="p-line" style="width:70%"></div><div class="p-line" style="width:45%"></div></div>
+    </div>
+  </div>
+  <span class="opt__label">Opción 8 · Paneles flotantes</span>
+  <div class="hero">
+    <h1 class="hero__title">GM Soluciones Digitales</h1>
+    <div class="rot" data-rot>
+      <span>Soluciones digitales a la medida de tu empresa</span>
+      <span>Atención y ventas automatizadas por WhatsApp</span>
+      <span>Inteligencia de datos para decidir mejor</span>
+      <span>Automatización de procesos empresariales</span>
+    </div>
+    <p class="hero__lead">Diseñamos e implementamos soluciones tecnológicas que se adaptan a cómo opera tu empresa: automatización, datos y atención al cliente, con acompañamiento de principio a fin.</p>
+    <div class="hero__actions">
+      <a class="btn" href="#"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5.1-1.3A10 10 0 1 0 12 2Zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2Zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.2-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5c-.2 0-.5.1-.7.3-.2.3-.9.9-.9 2.2s.9 2.5 1.1 2.7c.1.2 1.9 2.9 4.6 4 1.7.7 2.3.8 3.2.7.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.2-1.2-.1-.2-.3-.2-.6-.3Z"/></svg>Escríbenos por WhatsApp</a>
+      <a class="btn btn--ghost" href="#">Ver soluciones</a>
+    </div>
+  </div>
+  <p class="opt__note">Tarjetas de vidrio con formas de chat, gráfico, flujo y cotización, flotando con paralaje al mover el cursor. Insinúa las tres líneas sin decirlas.</p>
+</section>
+
+<!-- 9 -->
+<section class="opt opt--canvas opt--particles" id="o9">
+  <div class="opt__bg"><canvas data-canvas="particles"></canvas></div>
+  <span class="opt__label">Opción 9 · Titular de partículas</span>
+  <div class="hero">
+    <h1 class="hero__title hero__title--ghost" data-ghost>GM Soluciones Digitales</h1>
+    <div class="rot" data-rot>
+      <span>Soluciones digitales a la medida de tu empresa</span>
+      <span>Atención y ventas automatizadas por WhatsApp</span>
+      <span>Inteligencia de datos para decidir mejor</span>
+      <span>Automatización de procesos empresariales</span>
+    </div>
+    <p class="hero__lead">Diseñamos e implementamos soluciones tecnológicas que se adaptan a cómo opera tu empresa: automatización, datos y atención al cliente, con acompañamiento de principio a fin.</p>
+    <div class="hero__actions">
+      <a class="btn" href="#"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5.1-1.3A10 10 0 1 0 12 2Zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2Zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.2-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5c-.2 0-.5.1-.7.3-.2.3-.9.9-.9 2.2s.9 2.5 1.1 2.7c.1.2 1.9 2.9 4.6 4 1.7.7 2.3.8 3.2.7.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.2-1.2-.1-.2-.3-.2-.6-.3Z"/></svg>Escríbenos por WhatsApp</a>
+      <a class="btn btn--ghost" href="#">Ver soluciones</a>
+    </div>
+  </div>
+  <p class="opt__note">El nombre se arma con miles de partículas que llegan desde el caos. Pasa el cursor por encima: se dispersan y se vuelven a juntar. Cada 9 segundos explota y se rearma.</p>
+</section>
+
+<!-- 10 -->
+<section class="opt opt--mono" id="o10">
+  <div class="opt__bg"><div class="mono" aria-hidden="true">GM<span class="mono__sweep">GM</span></div></div>
+  <span class="opt__label">Opción 10 · Marca monumental</span>
+  <div class="hero">
+    <h1 class="hero__title">GM Soluciones Digitales</h1>
+    <div class="rot" data-rot>
+      <span>Soluciones digitales a la medida de tu empresa</span>
+      <span>Atención y ventas automatizadas por WhatsApp</span>
+      <span>Inteligencia de datos para decidir mejor</span>
+      <span>Automatización de procesos empresariales</span>
+    </div>
+    <p class="hero__lead">Diseñamos e implementamos soluciones tecnológicas que se adaptan a cómo opera tu empresa: automatización, datos y atención al cliente, con acompañamiento de principio a fin.</p>
+    <div class="hero__actions">
+      <a class="btn" href="#"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5.1-1.3A10 10 0 1 0 12 2Zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2Zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.2-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5c-.2 0-.5.1-.7.3-.2.3-.9.9-.9 2.2s.9 2.5 1.1 2.7c.1.2 1.9 2.9 4.6 4 1.7.7 2.3.8 3.2.7.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.2-1.2-.1-.2-.3-.2-.6-.3Z"/></svg>Escríbenos por WhatsApp</a>
+      <a class="btn btn--ghost" href="#">Ver soluciones</a>
+    </div>
+  </div>
+  <p class="opt__note">El lettermark GM, gigantesco, en trazo y en perspectiva 3D, girando lentamente detrás del contenido con una luz que lo recorre. La marca como arquitectura.</p>
+</section>
+
+<!-- 11 -->
+<section class="opt opt--canvas opt--liquid" id="o11">
+  <div class="opt__bg"><canvas data-canvas="liquid"></canvas></div>
+  <span class="opt__label">Opción 11 · Titular líquido</span>
+  <div class="hero">
+    <h1 class="hero__title hero__title--ghost" data-ghost>GM Soluciones Digitales</h1>
+    <div class="rot" data-rot>
+      <span>Soluciones digitales a la medida de tu empresa</span>
+      <span>Atención y ventas automatizadas por WhatsApp</span>
+      <span>Inteligencia de datos para decidir mejor</span>
+      <span>Automatización de procesos empresariales</span>
+    </div>
+    <p class="hero__lead">Diseñamos e implementamos soluciones tecnológicas que se adaptan a cómo opera tu empresa: automatización, datos y atención al cliente, con acompañamiento de principio a fin.</p>
+    <div class="hero__actions">
+      <a class="btn" href="#"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5.1-1.3A10 10 0 1 0 12 2Zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2Zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.2-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5c-.2 0-.5.1-.7.3-.2.3-.9.9-.9 2.2s.9 2.5 1.1 2.7c.1.2 1.9 2.9 4.6 4 1.7.7 2.3.8 3.2.7.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.2-1.2-.1-.2-.3-.2-.6-.3Z"/></svg>Escríbenos por WhatsApp</a>
+      <a class="btn btn--ghost" href="#">Ver soluciones</a>
+    </div>
+  </div>
+  <p class="opt__note">El nombre renderizado como verde líquido: ondula, brilla y se deforma solo. Mueve el cursor sobre las letras y les haces ondas.</p>
+</section>
+
+<script>
+(() => {
+  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  // Línea rotativa
+  document.querySelectorAll("[data-rot]").forEach((rot) => {
+    const items = [...rot.children];
+    let i = 0;
+    items[0].classList.add("is-on");
+    if (reduce) return;
+    setInterval(() => {
+      const cur = items[i];
+      cur.classList.remove("is-on"); cur.classList.add("is-out");
+      setTimeout(() => cur.classList.remove("is-out"), 700);
+      i = (i + 1) % items.length;
+      items[i].classList.add("is-on");
+    }, 2800);
+  });
+
+  // 3. Luz que sigue al cursor
+  const spot = document.getElementById("spotBg");
+  const sec3 = document.getElementById("o3");
+  let tx = 0.5, ty = 0.4, cx = 0.5, cy = 0.4, auto = true, t0 = performance.now();
+  sec3.addEventListener("pointermove", (e) => {
+    const r = sec3.getBoundingClientRect();
+    tx = (e.clientX - r.left) / r.width; ty = (e.clientY - r.top) / r.height; auto = false;
+  });
+  sec3.addEventListener("pointerleave", () => { auto = true; });
+  const spotLoop = (now) => {
+    if (auto) { const t = (now - t0) / 1000; tx = 0.5 + Math.cos(t * 0.35) * 0.3; ty = 0.45 + Math.sin(t * 0.5) * 0.22; }
+    cx += (tx - cx) * 0.08; cy += (ty - cy) * 0.08;
+    spot.style.setProperty("--mx", (cx * 100).toFixed(2) + "%");
+    spot.style.setProperty("--my", (cy * 100).toFixed(2) + "%");
+    requestAnimationFrame(spotLoop);
+  };
+  if (!reduce) requestAnimationFrame(spotLoop);
+
+  // 4. Grano animado
+  const turb = document.getElementById("turb");
+  if (turb && !reduce) setInterval(() => turb.setAttribute("seed", String(Math.floor(Math.random() * 1000))), 90);
+
+  // Lienzos 2D: ayuda común (DPR, visibilidad, cursor)
+  const runCanvas = (canvas, setup, draw) => {
+    const ctx = canvas.getContext("2d");
+    const sec = canvas.closest(".opt");
+    const st = { w: 0, h: 0, mx: -9999, my: -9999, tmx: -9999, tmy: -9999, t: 0, visible: false };
+    const resize = () => {
+      const dpr = Math.min(devicePixelRatio || 1, 2);
+      st.w = canvas.clientWidth; st.h = canvas.clientHeight;
+      canvas.width = Math.floor(st.w * dpr); canvas.height = Math.floor(st.h * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      setup(st);
+    };
+    addEventListener("resize", resize); resize();
+    sec.addEventListener("pointermove", (e) => { const r = canvas.getBoundingClientRect(); st.tmx = e.clientX - r.left; st.tmy = e.clientY - r.top; });
+    sec.addEventListener("pointerleave", () => { st.tmx = -9999; st.tmy = -9999; });
+    new IntersectionObserver((es) => { st.visible = es[0].isIntersecting; }).observe(sec);
+    const start = performance.now();
+    const frame = (now) => {
+      if (st.visible) {
+        st.t = reduce ? 0 : (now - start) / 1000;
+        if (st.tmx === -9999) { st.mx += (-9999 - st.mx) * 1; st.my = -9999; } else { st.mx += (st.tmx - st.mx) * 0.1; st.my += (st.tmy - st.my) * 0.1; }
+        if (st.mx < -5000) { st.mx = -9999; }
+        ctx.clearRect(0, 0, st.w, st.h);
+        draw(ctx, st);
+      }
+      requestAnimationFrame(frame);
+    };
+    requestAnimationFrame(frame);
+  };
+
+  // 5. Líneas de flujo
+  runCanvas(document.querySelector('[data-canvas="lines"]'), () => {}, (ctx, s) => {
+    const N = 34, step = 10;
+    for (let i = 0; i < N; i++) {
+      const y0 = (i + 0.5) / N * s.h;
+      const edge = Math.sin((i + 0.5) / N * Math.PI);
+      const a = 0.08 + edge * 0.34;
+      ctx.beginPath();
+      for (let x = 0; x <= s.w + step; x += step) {
+        let y = y0
+          + Math.sin(x * 0.0035 + s.t * 0.9 + i * 0.35) * 16
+          + Math.sin(x * 0.009 - s.t * 0.6 + i * 0.6) * 8
+          + Math.cos(x * 0.0018 + s.t * 0.35 + i * 0.2) * 22;
+        if (s.mx > -5000) {
+          const dx = x - s.mx, dy = y - s.my, d2 = dx * dx + dy * dy;
+          y += (dy / (Math.sqrt(d2) + 1)) * 70 * Math.exp(-d2 / 26000);
+        }
+        x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+      }
+      ctx.strokeStyle = `rgba(94,227,166,${a})`; ctx.lineWidth = 1;
+      ctx.stroke();
+    }
+  });
+
+  // 6. Constelación
+  let pts = [];
+  runCanvas(document.querySelector('[data-canvas="dots"]'), (s) => {
+    const n = Math.round((s.w * s.h) / 11000);
+    pts = Array.from({ length: n }, () => ({ x: Math.random() * s.w, y: Math.random() * s.h, vx: (Math.random() - 0.5) * 0.35, vy: (Math.random() - 0.5) * 0.35, r: 1 + Math.random() * 1.6, hi: Math.random() < 0.12 }));
+  }, (ctx, s) => {
+    const R = 130;
+    for (const p of pts) {
+      p.x += p.vx; p.y += p.vy;
+      if (s.mx > -5000) { const dx = s.mx - p.x, dy = s.my - p.y, d = Math.hypot(dx, dy); if (d < 220 && d > 1) { p.x += dx / d * 0.35; p.y += dy / d * 0.35; } }
+      if (p.x < -10) p.x = s.w + 10; if (p.x > s.w + 10) p.x = -10; if (p.y < -10) p.y = s.h + 10; if (p.y > s.h + 10) p.y = -10;
+    }
+    ctx.lineWidth = 1;
+    for (let i = 0; i < pts.length; i++) for (let j = i + 1; j < pts.length; j++) {
+      const a = pts[i], b = pts[j]; const dx = a.x - b.x, dy = a.y - b.y; const d2 = dx * dx + dy * dy;
+      if (d2 < R * R) { const al = (1 - Math.sqrt(d2) / R) * 0.35; ctx.strokeStyle = `rgba(94,227,166,${al})`; ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke(); }
+    }
+    for (const p of pts) { ctx.fillStyle = p.hi ? "rgba(94,227,166,0.95)" : "rgba(47,179,122,0.75)"; ctx.beginPath(); ctx.arc(p.x, p.y, p.hi ? p.r + 0.8 : p.r, 0, Math.PI * 2); ctx.fill(); }
+  });
+
+  // 7. Globo de puntos
+  let sph = [], arcs = [];
+  runCanvas(document.querySelector('[data-canvas="globe"]'), (s) => {
+    const n = 700; sph = [];
+    for (let i = 0; i < n; i++) { const y = 1 - (i / (n - 1)) * 2; const r = Math.sqrt(1 - y * y); const th = i * 2.399963; sph.push([Math.cos(th) * r, y, Math.sin(th) * r]); }
+    arcs = Array.from({ length: 7 }, () => [sph[Math.floor(Math.random() * n)], sph[Math.floor(Math.random() * n)], Math.random() * 6]);
+  }, (ctx, s) => {
+    const narrow = s.w < 900;
+    const R = narrow ? Math.min(s.w, s.h) * 0.42 : Math.min(s.w * 0.26, s.h * 0.36);
+    const cx = narrow ? s.w * 0.5 : s.w * 0.72, cy = narrow ? s.h * 0.62 : s.h * 0.5;
+    const tilt = -0.35 + (s.my > -5000 ? (s.my / s.h - 0.5) * 0.25 : 0);
+    const rot = s.t * 0.18 + (s.mx > -5000 ? (s.mx / s.w - 0.5) * 0.4 : 0);
+    const cr = Math.cos(rot), sr = Math.sin(rot), ct = Math.cos(tilt), stt = Math.sin(tilt);
+    const proj = (p) => { let x = p[0] * cr - p[2] * sr, z = p[0] * sr + p[2] * cr, y = p[1]; const y2 = y * ct - z * stt; z = y * stt + z * ct; const f = 1 / (1.9 - z * 0.7); return [cx + x * R * f, cy + y2 * R * f, z]; };
+    const alphaMul = narrow ? 0.55 : 1;
+    for (const p of sph) { const [x, y, z] = proj(p); const a = (0.12 + (z + 1) * 0.38) * alphaMul; ctx.fillStyle = `rgba(94,227,166,${a})`; ctx.beginPath(); ctx.arc(x, y, 0.9 + (z + 1) * 0.9, 0, Math.PI * 2); ctx.fill(); }
+    for (const [a, b, ph] of arcs) {
+      const A = proj(a), B = proj(b); if (A[2] < -0.15 && B[2] < -0.15) continue;
+      const mx = (A[0] + B[0]) / 2, my = (A[1] + B[1]) / 2; const dx = mx - cx, dy = my - cy; const d = Math.hypot(dx, dy) || 1; const lift = 0.5 + Math.min(1, Math.hypot(A[0] - B[0], A[1] - B[1]) / R);
+      const qx = cx + dx / d * R * lift, qy = cy + dy / d * R * lift;
+      const prog = (Math.sin(s.t * 0.7 + ph) + 1) / 2;
+      ctx.strokeStyle = `rgba(94,227,166,${0.35 * alphaMul})`; ctx.lineWidth = 1.2; ctx.setLineDash([6, 8]); ctx.lineDashOffset = -s.t * 30;
+      ctx.beginPath(); ctx.moveTo(A[0], A[1]); ctx.quadraticCurveTo(qx, qy, B[0], B[1]); ctx.stroke(); ctx.setLineDash([]);
+      const t = prog, px = (1 - t) * (1 - t) * A[0] + 2 * (1 - t) * t * qx + t * t * B[0], py = (1 - t) * (1 - t) * A[1] + 2 * (1 - t) * t * qy + t * t * B[1];
+      ctx.fillStyle = "rgba(94,227,166,0.95)"; ctx.beginPath(); ctx.arc(px, py, 2.6, 0, Math.PI * 2); ctx.fill();
+    }
+  });
+
+  // Título fantasma: replica el h1 (fuente, tamaño y saltos de línea) para dibujarlo en un lienzo
+  const ghostLayout = (section, ctx) => {
+    const h1 = section.querySelector("[data-ghost]");
+    const cs = getComputedStyle(h1);
+    const r = h1.getBoundingClientRect(), sr = section.getBoundingClientRect();
+    const fontSize = parseFloat(cs.fontSize), lineH = parseFloat(cs.lineHeight) || fontSize * 0.98;
+    ctx.font = `${cs.fontStyle} ${cs.fontWeight} ${fontSize}px ${cs.fontFamily}`;
+    const words = h1.textContent.trim().split(/\s+/); const lines = []; let cur = "";
+    for (const w of words) { const test = cur ? cur + " " + w : w; if (ctx.measureText(test).width > r.width && cur) { lines.push(cur); cur = w; } else cur = test; }
+    if (cur) lines.push(cur);
+    return { lines, x: r.left - sr.left, y: r.top - sr.top, fontSize, lineH, font: ctx.font, w: r.width, h: r.height };
+  };
+  const drawGhostText = (ctx, L, color) => {
+    ctx.font = L.font; ctx.fillStyle = color; ctx.textBaseline = "alphabetic";
+    L.lines.forEach((ln, i) => ctx.fillText(ln, L.x, L.y + i * L.lineH + L.fontSize * 0.86));
+  };
+
+  // 9. Titular de partículas
+  document.fonts.ready.then(() => {
+    const canvas = document.querySelector('[data-canvas="particles"]');
+    let parts = [], lastBoom = 0;
+    runCanvas(canvas, (s) => {
+      const off = document.createElement("canvas"); off.width = s.w; off.height = s.h;
+      const oc = off.getContext("2d");
+      const L = ghostLayout(canvas.closest(".opt"), oc); drawGhostText(oc, L, "#fff");
+      const img = oc.getImageData(0, 0, s.w, s.h).data;
+      const step = L.fontSize < 64 ? 2 : 3; const targets = [];
+      for (let y = Math.max(0, Math.floor(L.y - 10)); y < Math.min(s.h, L.y + L.h + 10); y += step)
+        for (let x = Math.max(0, Math.floor(L.x - 10)); x < Math.min(s.w, L.x + L.w + 10); x += step)
+          if (img[(y * s.w + x) * 4 + 3] > 120) targets.push([x + (Math.random() - 0.5), y + (Math.random() - 0.5)]);
+      parts = targets.map(([tx, ty]) => ({ tx, ty, x: s.w * 0.5 + (Math.random() - 0.5) * s.w * 1.6, y: s.h * 0.5 + (Math.random() - 0.5) * s.h * 1.6, vx: 0, vy: 0, hi: Math.random() < 0.18 }));
+      lastBoom = performance.now();
+    }, (ctx, s) => {
+      if (reduce) { const L = ghostLayout(canvas.closest(".opt"), ctx); drawGhostText(ctx, L, "#F2F5F3"); return; }
+      const now = performance.now();
+      if (now - lastBoom > 9000) { lastBoom = now; for (const p of parts) { const a = Math.random() * Math.PI * 2, f = 8 + Math.random() * 26; p.vx += Math.cos(a) * f; p.vy += Math.sin(a) * f; } }
+      for (const p of parts) {
+        if (s.mx > -5000) { const dx = p.x - s.mx, dy = p.y - s.my, d2 = dx * dx + dy * dy; if (d2 < 8100) { const d = Math.sqrt(d2) + 0.1, f = (1 - d / 90) * 4.5; p.vx += dx / d * f; p.vy += dy / d * f; } }
+        p.vx = (p.vx + (p.tx - p.x) * 0.045) * 0.84; p.vy = (p.vy + (p.ty - p.y) * 0.045) * 0.84;
+        p.x += p.vx; p.y += p.vy;
+        ctx.fillStyle = p.hi ? "rgba(94,227,166,0.95)" : "rgba(242,245,243,0.9)";
+        ctx.fillRect(p.x, p.y, 2.2, 2.2);
+      }
+    });
+  });
+
+  // 11. Titular líquido (WebGL sobre textura del texto)
+  document.fonts.ready.then(() => {
+    const canvas = document.querySelector('[data-canvas="liquid"]');
+    const sec = canvas.closest(".opt");
+    const g = canvas.getContext("webgl", { alpha: true, premultipliedAlpha: true, preserveDrawingBuffer: true });
+    if (!g) { sec.querySelector("[data-ghost]").style.opacity = 1; return; }
+    const fsL = `
+      precision highp float;
+      uniform vec2 u_res; uniform float u_time; uniform vec2 u_mouse; uniform sampler2D u_tex;
+      ${NOISE}
+      void main(){
+        vec2 uv = gl_FragCoord.xy / u_res; float ar = u_res.x / u_res.y; float t = u_time;
+        vec2 p = vec2(uv.x * ar, uv.y);
+        vec2 d = vec2(snoise(p*2.6 + vec2(t*0.25, -t*0.2)), snoise(p*2.6 - vec2(t*0.22, t*0.27))) * 0.0042;
+        vec2 dm = p - vec2(u_mouse.x*ar, u_mouse.y); float dist = length(dm) + 0.0001;
+        vec2 ripple = (dm/dist) * sin(dist*46.0 - t*7.0) * exp(-dist*7.0) * 0.012;
+        vec2 uv2 = uv + d + ripple;
+        float a = texture2D(u_tex, uv2).a;
+        if (a < 0.02) { gl_FragColor = vec4(0.0); return; }
+        float n2 = snoise(p*1.8 + vec2(-t*0.15, t*0.1));
+        float n3 = snoise(p*4.5 + vec2(t*0.35, t*0.3));
+        vec3 brand = vec3(0.122,0.541,0.357); vec3 mint = vec3(0.369,0.890,0.651); vec3 white = vec3(0.93,1.0,0.96);
+        vec3 col = mix(brand, mint, n2*0.5+0.5);
+        col = mix(col, white, smoothstep(0.45, 0.95, n3) * 0.85);
+        float a2 = texture2D(u_tex, uv2 + vec2(-2.0, 2.0)/u_res).a;
+        col += clamp(a - a2, 0.0, 1.0) * 0.7;
+        gl_FragColor = vec4(col * a, a);
+      }`;
+    const mk = (tp, src) => { const o = g.createShader(tp); g.shaderSource(o, src); g.compileShader(o); return o; };
+    const pr = g.createProgram(); g.attachShader(pr, mk(g.VERTEX_SHADER, vs)); g.attachShader(pr, mk(g.FRAGMENT_SHADER, fsL)); g.linkProgram(pr); g.useProgram(pr);
+    const b = g.createBuffer(); g.bindBuffer(g.ARRAY_BUFFER, b); g.bufferData(g.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, 1,1]), g.STATIC_DRAW);
+    const lp = g.getAttribLocation(pr, "p"); g.enableVertexAttribArray(lp); g.vertexAttribPointer(lp, 2, g.FLOAT, false, 0, 0);
+    const uR = g.getUniformLocation(pr, "u_res"), uT = g.getUniformLocation(pr, "u_time"), uM = g.getUniformLocation(pr, "u_mouse");
+    const tex = g.createTexture(); g.bindTexture(g.TEXTURE_2D, tex);
+    g.texParameteri(g.TEXTURE_2D, g.TEXTURE_MIN_FILTER, g.LINEAR); g.texParameteri(g.TEXTURE_2D, g.TEXTURE_MAG_FILTER, g.LINEAR);
+    g.texParameteri(g.TEXTURE_2D, g.TEXTURE_WRAP_S, g.CLAMP_TO_EDGE); g.texParameteri(g.TEXTURE_2D, g.TEXTURE_WRAP_T, g.CLAMP_TO_EDGE);
+    g.pixelStorei(g.UNPACK_FLIP_Y_WEBGL, true); g.pixelStorei(g.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
+    g.enable(g.BLEND); g.blendFunc(g.ONE, g.ONE_MINUS_SRC_ALPHA);
+    const off = document.createElement("canvas"); const oc = off.getContext("2d");
+    let mx = 0.3, my = 0.6, tmx = 0.3, tmy = 0.6, visible = false;
+    const resize = () => {
+      const dpr = Math.min(devicePixelRatio || 1, 2);
+      canvas.width = Math.floor(canvas.clientWidth * dpr); canvas.height = Math.floor(canvas.clientHeight * dpr);
+      g.viewport(0, 0, canvas.width, canvas.height);
+      off.width = canvas.width; off.height = canvas.height; oc.setTransform(dpr, 0, 0, dpr, 0, 0);
+      oc.clearRect(0, 0, canvas.clientWidth, canvas.clientHeight);
+      const L = ghostLayout(sec, oc); drawGhostText(oc, L, "#fff");
+      g.bindTexture(g.TEXTURE_2D, tex); g.texImage2D(g.TEXTURE_2D, 0, g.RGBA, g.RGBA, g.UNSIGNED_BYTE, off);
+    };
+    addEventListener("resize", resize); resize();
+    sec.addEventListener("pointermove", (e) => { const r = sec.getBoundingClientRect(); tmx = (e.clientX - r.left) / r.width; tmy = 1 - (e.clientY - r.top) / r.height; });
+    new IntersectionObserver((es) => { visible = es[0].isIntersecting; }).observe(sec);
+    const t0 = performance.now();
+    const loop = (now) => {
+      if (visible) {
+        mx += (tmx - mx) * 0.08; my += (tmy - my) * 0.08;
+        g.clearColor(0, 0, 0, 0); g.clear(g.COLOR_BUFFER_BIT);
+        g.uniform2f(uR, canvas.width, canvas.height); g.uniform1f(uT, reduce ? 0 : (now - t0) / 1000); g.uniform2f(uM, mx, my);
+        g.drawArrays(g.TRIANGLE_STRIP, 0, 4);
+      }
+      requestAnimationFrame(loop);
+    };
+    requestAnimationFrame(loop);
+  });
+
+  // 8. Paneles flotantes con paralaje
+  const panelsWrap = document.getElementById("panels");
+  const panels = [...panelsWrap.querySelectorAll(".panel")];
+  const sec8 = document.getElementById("o8");
+  let p8x = 0, p8y = 0, t8x = 0, t8y = 0;
+  sec8.addEventListener("pointermove", (e) => { const r = sec8.getBoundingClientRect(); t8x = (e.clientX - r.left) / r.width - 0.5; t8y = (e.clientY - r.top) / r.height - 0.5; });
+  sec8.addEventListener("pointerleave", () => { t8x = 0; t8y = 0; });
+  const p8start = performance.now();
+  const panelLoop = (now) => {
+    p8x += (t8x - p8x) * 0.06; p8y += (t8y - p8y) * 0.06;
+    const t = (now - p8start) / 1000;
+    panels.forEach((el, i) => {
+      const depth = parseFloat(el.dataset.depth || "1");
+      el.style.setProperty("--x", (-p8x * 26 * depth).toFixed(2) + "px");
+      el.style.setProperty("--y", (-p8y * 18 * depth).toFixed(2) + "px");
+      el.style.setProperty("--f", (reduce ? 0 : Math.sin(t * 0.8 + i * 1.7) * 7).toFixed(2) + "px");
+    });
+    requestAnimationFrame(panelLoop);
+  };
+  requestAnimationFrame(panelLoop);
+
+  // 1. Aurora WebGL
+  const canvas = document.getElementById("aurora");
+  const gl = canvas.getContext("webgl", { antialias: false, preserveDrawingBuffer: true });
+  if (!gl) { canvas.parentElement.style.background = "linear-gradient(180deg,#0B2419,#06110C)"; return; }
+  const vs = `attribute vec2 p; void main(){ gl_Position = vec4(p, 0.0, 1.0); }`;
+  const NOISE = `
+    vec3 mod289(vec3 x){return x-floor(x*(1.0/289.0))*289.0;}
+    vec2 mod289(vec2 x){return x-floor(x*(1.0/289.0))*289.0;}
+    vec3 permute(vec3 x){return mod289(((x*34.0)+1.0)*x);}
+    float snoise(vec2 v){
+      const vec4 C=vec4(0.211324865405187,0.366025403784439,-0.577350269189626,0.024390243902439);
+      vec2 i=floor(v+dot(v,C.yy)); vec2 x0=v-i+dot(i,C.xx);
+      vec2 i1=(x0.x>x0.y)?vec2(1.0,0.0):vec2(0.0,1.0);
+      vec4 x12=x0.xyxy+C.xxzz; x12.xy-=i1; i=mod289(i);
+      vec3 p=permute(permute(i.y+vec3(0.0,i1.y,1.0))+i.x+vec3(0.0,i1.x,1.0));
+      vec3 m=max(0.5-vec3(dot(x0,x0),dot(x12.xy,x12.xy),dot(x12.zw,x12.zw)),0.0); m=m*m; m=m*m;
+      vec3 x=2.0*fract(p*C.www)-1.0; vec3 h=abs(x)-0.5; vec3 ox=floor(x+0.5); vec3 a0=x-ox;
+      m*=1.79284291400159-0.85373472095314*(a0*a0+h*h);
+      vec3 g; g.x=a0.x*x0.x+h.x*x0.y; g.yz=a0.yz*x12.xz+h.yz*x12.yw; return 130.0*dot(m,g);
+    }`;
+  const fs = `
+    precision highp float;
+    uniform vec2 u_res; uniform float u_time; uniform vec2 u_mouse;
+    vec3 mod289(vec3 x){return x-floor(x*(1.0/289.0))*289.0;}
+    vec2 mod289(vec2 x){return x-floor(x*(1.0/289.0))*289.0;}
+    vec3 permute(vec3 x){return mod289(((x*34.0)+1.0)*x);}
+    float snoise(vec2 v){
+      const vec4 C=vec4(0.211324865405187,0.366025403784439,-0.577350269189626,0.024390243902439);
+      vec2 i=floor(v+dot(v,C.yy)); vec2 x0=v-i+dot(i,C.xx);
+      vec2 i1=(x0.x>x0.y)?vec2(1.0,0.0):vec2(0.0,1.0);
+      vec4 x12=x0.xyxy+C.xxzz; x12.xy-=i1; i=mod289(i);
+      vec3 p=permute(permute(i.y+vec3(0.0,i1.y,1.0))+i.x+vec3(0.0,i1.x,1.0));
+      vec3 m=max(0.5-vec3(dot(x0,x0),dot(x12.xy,x12.xy),dot(x12.zw,x12.zw)),0.0); m=m*m; m=m*m;
+      vec3 x=2.0*fract(p*C.www)-1.0; vec3 h=abs(x)-0.5; vec3 ox=floor(x+0.5); vec3 a0=x-ox;
+      m*=1.79284291400159-0.85373472095314*(a0*a0+h*h);
+      vec3 g; g.x=a0.x*x0.x+h.x*x0.y; g.yz=a0.yz*x12.xz+h.yz*x12.yw; return 130.0*dot(m,g);
+    }
+    void main(){
+      vec2 uv=gl_FragCoord.xy/u_res; float ar=u_res.x/u_res.y;
+      vec2 p=vec2(uv.x*ar, uv.y); float t=u_time*0.07;
+      float n1=snoise(p*1.1+vec2(t,-t*0.6));
+      float n2=snoise(p*2.0-vec2(t*0.5,t*0.8)+n1*0.55);
+      float n3=snoise(p*0.6+vec2(-t*0.35,t*0.45)+n2*0.35);
+      float m=smoothstep(-0.25,0.95,n1*0.55+n2*0.3+n3*0.45);
+      vec2 mp=vec2(u_mouse.x*ar,u_mouse.y); float d=distance(p,mp); float glow=exp(-d*d*5.0)*0.30;
+      vec3 base=vec3(0.024,0.067,0.047);
+      vec3 teal=vec3(0.055,0.373,0.290);
+      vec3 g1=vec3(0.122,0.541,0.357);
+      vec3 g2=vec3(0.369,0.890,0.651);
+      vec3 col=mix(base,teal,m*0.95);
+      col=mix(col,g1,smoothstep(0.5,1.0,m)*0.85);
+      col=mix(col,g2,smoothstep(0.82,1.0,m)*0.35);
+      col+=g2*glow;
+      float v=smoothstep(1.5,0.35,length(uv-vec2(0.5,0.55))*1.5); col*=mix(0.7,1.0,v);
+      gl_FragColor=vec4(col,1.0);
+    }`;
+  const sh = (t, s) => { const o = gl.createShader(t); gl.shaderSource(o, s); gl.compileShader(o); return o; };
+  const prog = gl.createProgram();
+  gl.attachShader(prog, sh(gl.VERTEX_SHADER, vs)); gl.attachShader(prog, sh(gl.FRAGMENT_SHADER, fs)); gl.linkProgram(prog); gl.useProgram(prog);
+  const buf = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, 1,1]), gl.STATIC_DRAW);
+  const loc = gl.getAttribLocation(prog, "p"); gl.enableVertexAttribArray(loc); gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
+  const uRes = gl.getUniformLocation(prog, "u_res"), uTime = gl.getUniformLocation(prog, "u_time"), uMouse = gl.getUniformLocation(prog, "u_mouse");
+  let mx = 0.6, my = 0.5, tmx = 0.6, tmy = 0.5;
+  const sec1 = document.getElementById("o1");
+  sec1.addEventListener("pointermove", (e) => { const r = sec1.getBoundingClientRect(); tmx = (e.clientX - r.left) / r.width; tmy = 1 - (e.clientY - r.top) / r.height; });
+  const resize = () => {
+    const dpr = Math.min(devicePixelRatio || 1, 1.5);
+    canvas.width = Math.floor(canvas.clientWidth * dpr); canvas.height = Math.floor(canvas.clientHeight * dpr);
+    gl.viewport(0, 0, canvas.width, canvas.height);
+  };
+  addEventListener("resize", resize); resize();
+  const start = performance.now();
+  let visible = true;
+  new IntersectionObserver((es) => { visible = es[0].isIntersecting; }).observe(sec1);
+  const frame = (now) => {
+    if (visible) {
+      mx += (tmx - mx) * 0.06; my += (tmy - my) * 0.06;
+      gl.uniform2f(uRes, canvas.width, canvas.height);
+      gl.uniform1f(uTime, reduce ? 0 : (now - start) / 1000);
+      gl.uniform2f(uMouse, mx, my);
+      gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+    }
+    requestAnimationFrame(frame);
+  };
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>

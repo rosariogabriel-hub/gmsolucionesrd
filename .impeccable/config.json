@@ -1,0 +1,89 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "gradient-text",
+        "value": "*",
+        "files": [
+          "css/styles.css"
+        ],
+        "createdAt": "2026-09-21T21:04:43.673Z",
+        "reason": "user confirmed: Gabriel pidió el degradado verde de marca en el titular del hero (referencia Yalo), 21 sep 2026"
+      },
+      {
+        "rule": "gradient-text",
+        "value": "*",
+        "files": [
+          "index.html"
+        ],
+        "createdAt": "2026-09-21T21:10:26.053Z",
+        "reason": "user confirmed: Gabriel pidió el degradado verde de marca en el titular del hero (referencia Yalo), 21 sep 2026"
+      },
+      {
+        "rule": "clipped-overflow-container",
+        "value": "*",
+        "files": [
+          "index.html"
+        ],
+        "createdAt": "2026-09-21T21:10:26.071Z",
+        "reason": "agent: body usa overflow-x: clip (no crea scroll container); nav sticky y botón fixed verificados en navegador, ningún popover vive dentro del body clip"
+      },
+      {
+        "rule": "pulsing-dot",
+        "value": "*",
+        "files": [
+          "index.html"
+        ],
+        "createdAt": "2026-09-21T21:10:26.086Z",
+        "reason": "agent: es el indicador 'escribiendo…' de WhatsApp dentro de la demo del producto; motion propio del dominio, no decorativo"
+      },
+      {
+        "rule": "cramped-padding",
+        "value": "*",
+        "files": [
+          "index.html"
+        ],
+        "createdAt": "2026-09-21T21:10:26.100Z",
+        "reason": "agent: falso positivo; el gutter horizontal vive en .section__inner (padding 0 var(--gutter)), no en <section>"
+      },
+      {
+        "rule": "radial-spotlight-glow",
+        "value": "*",
+        "files": [
+          "index.html"
+        ],
+        "createdAt": "2026-09-21T21:10:26.113Z",
+        "reason": "user confirmed: dirección visual oscura con verde degradado (Yalo); el resplandor va anclado detrás del teléfono como luz de pantalla, único en la página"
+      },
+      {
+        "rule": "clipped-overflow-container",
+        "value": "*",
+        "files": [
+          "muestrario.html"
+        ],
+        "createdAt": "2026-09-21T22:15:48.909Z",
+        "reason": "agent: muestrario de fondos; los hijos posicionados son capas de fondo (blobs, luz, grano) que deben recortarse a su sección; no hay tooltips ni menús"
+      },
+      {
+        "rule": "radial-halo",
+        "value": "*",
+        "files": [
+          "muestrario.html"
+        ],
+        "createdAt": "2026-09-21T22:16:58.491Z",
+        "reason": "user confirmed: Gabriel pidió explícitamente más degradado verde en toda la página ('mucha parte negra'); el muestrario existe para que elija entre fondos de degradado"
+      },
+      {
+        "rule": "gradient-text",
+        "value": "*",
+        "files": [
+          "muestrario.html"
+        ],
+        "createdAt": "2026-09-21T22:35:56.032Z",
+        "reason": "agent: el degradado recortado al texto es el barrido de luz sobre el lettermark GM gigante de la opción 10 (efecto de iluminación, no color de texto); Gabriel pidió efectos explosivos en estas tres opciones"
+      }
+    ]
+  }
+}
