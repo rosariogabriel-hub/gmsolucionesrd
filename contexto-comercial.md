@@ -161,3 +161,6 @@ Consecuencia para el hero (aprobado por Gabriel el 22 sep):
 - H1: `Entendemos tu negocio antes de automatizarlo.`
 - Subtítulo: `Atención por WhatsApp, inteligencia de datos y automatización de procesos. Antes de tocar nada, mapeamos cómo trabaja tu empresa. Después la optimizamos.`
 - La línea rotativa de 4 frases: pendiente de decisión. Mientras exista, la primera frase manda (es la única que se ve con `prefers-reduced-motion`, `js/main.js:47`), así que es incompatible con repartir peso parejo.
+
+### RNC en el pie — decisión consciente (22 sep 2026)
+El RNC de persona física en RD es el mismo número de la cédula con otro formato: mostrarlo en el pie expone la cédula de Gabriel, públicamente e indefinidamente. Se planteó explícitamente y **Gabriel decidió dejarlo** tal como está. Si cambia de opinión, se quita del pie de `index.html` — es una línea. Cuando exista la SRL, su RNC propio puede reemplazar el personal.
